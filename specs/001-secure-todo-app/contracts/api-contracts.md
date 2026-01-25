@@ -11,7 +11,7 @@ Authorization: Bearer <jwt_token>
 
 ## Base URL
 ```
-https://api.example.com/v1
+https:/api.example.com/v1
 ```
 
 ## Common Response Format

@@ -1,153 +1,186 @@
 "use client";
 
-import { handleUnauthorizedAccess, handleForbiddenAccess } from '@/src/lib/auth';
-import { getValidToken } from '@/src/lib/tokenUtils';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://hiba-05-todoapp-phase-2.hf.space";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000" || "https://hiba-05-todo-app-phase2.hf.space/";
-const API_V1_BASE_URL = `${API_BASE_URL}/api/v1`;
+// Define types
+export interface User {
+  id: string;
+  email: string;
+}
 
-// Define the shape of our API response
+export interface AuthResponse {
+  success: boolean;
+  user: User;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  user_id?: string;
+}
+
+export interface TaskCreate {
+  title: string;
+  description?: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  user_id?: string;
+}
+
+// Simple API response type
 interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
 
-// Generic API client with JWT token handling
 export const apiClient = {
-  // Generic request function that handles JWT tokens
   async request<T>(
     endpoint: string,
-    options: RequestInit = {},
-    useV1Base: boolean = true // Whether to use the /api/v1 base URL or the root base URL
+    options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      // Get a valid JWT token (this will refresh if needed)
-      const token = await getValidToken();
+      const url = `${API_BASE_URL}${endpoint}`;
 
-      // Set up default headers
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-        "X-Requested-With": "XMLHttpRequest",  // Helps identify client requests
-        "X-Client-Type": "web",               // Identifies the client type
-        ...(options.headers as Record<string, string> || {}),
-      };
-
-      // Add authorization header if token exists
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      // Determine the base URL based on the endpoint type
-      const baseURL = useV1Base ? API_V1_BASE_URL : API_BASE_URL;
-      const url = `${baseURL}${endpoint}`;
-
-      console.log(`Making request to: ${url}`); // Debug logging
-      console.log(`Headers:`, headers); // Debug logging
-      console.log(`Token:`, token ? 'Present' : 'Missing'); // Debug logging
-
-      // Make the request
       const response = await fetch(url, {
         ...options,
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+          ...options.headers,
+        },
       });
 
-      console.log(`Response status: ${response.status}`); // Debug logging
-
-      // Handle 401 Unauthorized responses
-      if (response.status === 401) {
-        console.error("Unauthorized access - token may be invalid or expired");
-        handleUnauthorizedAccess();
-        return { error: "Unauthorized: Please log in again" };
-      }
-
-      // Handle 403 Forbidden responses
-      if (response.status === 403) {
-        console.error("Forbidden access - you don't have permission for this resource");
-        handleForbiddenAccess();
-        return { error: "Forbidden: You don't have permission for this resource" };
-      }
-
-      // Try to parse the response as JSON
-      let data;
+      let data: any = null;
       try {
         data = await response.json();
-        console.log(`Response data:`, data); // Debug logging
-      } catch (e) {
-        // If response is not JSON, return status message
-        console.warn(`Response not JSON:`, response.statusText); // Debug logging
-        data = { message: response.statusText };
+      } catch {
+        data = null;
       }
 
-      // Return appropriate response based on success/failure
       if (!response.ok) {
-        return { error: data.message || "An error occurred" };
+        return { error: data?.message || "Request failed" };
       }
 
       return { data };
-    } catch (error: any) {
-      console.error("API request failed:", error);
-      console.error("Error details:", {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-
-      // Check if it's a network error
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        return { error: "Network error: Unable to connect to the server. Please check if the backend is running." };
-      }
-
-      return { error: error.message || "Network error" };
+    } catch (error) {
+      console.error("Fetch failed:", error);
+      return {
+        error:
+          "Backend unreachable. Check backend server, port, and CORS.",
+      };
     }
   },
 
-  // Auth request function for endpoints that don't use /api/v1 prefix
-  async authRequest<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, options, false); // Don't use V1 base for auth endpoints
+  get<T>(endpoint: string) {
+    return this.request<T>(endpoint, { method: "GET" });
   },
 
-  // V1 request function for endpoints that use /api/v1 prefix
-  async v1Request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, options, true); // Use V1 base for API v1 endpoints
-  },
-
-  // GET request helper for API v1 endpoints
-  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.v1Request<T>(endpoint, { method: "GET" });
-  },
-
-  // POST request helper for API v1 endpoints
-  async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
-    return this.v1Request<T>(endpoint, {
+  post<T>(endpoint: string, body: any) {
+    return this.request<T>(endpoint, {
       method: "POST",
       body: JSON.stringify(body),
     });
   },
 
-  // PUT request helper for API v1 endpoints
-  async put<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
-    return this.v1Request<T>(endpoint, {
+  put<T>(endpoint: string, body: any) {
+    return this.request<T>(endpoint, {
       method: "PUT",
       body: JSON.stringify(body),
     });
   },
 
-  // DELETE request helper for API v1 endpoints
-  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.v1Request<T>(endpoint, { method: "DELETE" });
+  delete<T>(endpoint: string) {
+    return this.request<T>(endpoint, { method: "DELETE" });
+  },
+};
+
+// Auth API functions
+export const authAPI = {
+  async signup(email: string, password: string): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>('/auth/signup', {
+      email,
+      password
+    });
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    if (!response.data) {
+      throw new Error('No response data received');
+    }
+
+    return response.data;
   },
 
-  // Auth-specific helpers
-  async authPost<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
-    return this.authRequest<T>(endpoint, {
-      method: "POST",
-      body: JSON.stringify(body),
+  async signin(email: string, password: string): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>('/auth/signin', {
+      email,
+      password
     });
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    if (!response.data) {
+      throw new Error('No response data received');
+    }
+
+    return response.data;
+  }
+};
+
+// Tasks API functions
+export const tasksAPI = {
+  async getTasks(): Promise<Task[]> {
+    const response = await apiClient.get<Task[]>('/api/v1/tasks/');
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    if (!response.data) {
+      throw new Error('No response data received');
+    }
+
+    return response.data;
   },
+
+  async createTask(task: TaskCreate): Promise<Task> {
+    const response = await apiClient.post<Task>('/api/v1/tasks/', task);
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    if (!response.data) {
+      throw new Error('No response data received');
+    }
+
+    return response.data;
+  },
+
+  async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
+    const response = await apiClient.put<Task>(`/api/v1/tasks/${id}`, updates);
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    if (!response.data) {
+      throw new Error('No response data received');
+    }
+
+    return response.data;
+  },
+
+  async deleteTask(id: string): Promise<void> {
+    const response = await apiClient.delete(`/api/v1/tasks/${id}`);
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+  }
 };

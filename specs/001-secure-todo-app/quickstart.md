@@ -36,8 +36,7 @@ npm install
 #### Backend Configuration
 Create a `.env` file in the `backend` directory:
 ```env
-DATABASE_URL=postgresql://username:password@ep-xxxxxx.us-east-1.aws.neon.tech/dbname?sslmode=require
-BETTER_AUTH_SECRET=your-super-secret-jwt-key-here
+DATABASE_URL=postgresql://neondb_owner:npg_7XRVveUNBG6r@ep-noisy-hall-ahm93msk-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 BETTER_AUTH_URL=http://localhost:3000
 ```
 
@@ -45,7 +44,7 @@ BETTER_AUTH_URL=http://localhost:3000
 Create a `.env.local` file in the `frontend` directory:
 ```env
 NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL=http://0.0.0.0:8000/
 ```
 
 ### 5. Initialize Database
@@ -61,7 +60,7 @@ python -m src.db.init  # This will create tables based on SQLModel definitions
 cd backend
 python -m src.main
 ```
-The backend will start on `http://localhost:8000`.
+The backend will start on `http://0.0.0.0:8000/`
 
 #### Frontend (in another terminal):
 ```bash
@@ -95,10 +94,10 @@ The frontend will start on `http://localhost:3000`.
 Using a tool like curl or Postman:
 ```bash
 # Test protected endpoint without token (should return 401)
-curl -X GET http://localhost:8000/api/tasks
+curl -X GET http://0.0.0.0:8000/]/api/tasks
 
 # Test protected endpoint with valid token (should return tasks)
-curl -X GET http://localhost:8000/api/tasks \
+curl -X GET http://0.0.0.0:8000/api/tasks \
   -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE"
 ```
 
@@ -121,7 +120,7 @@ curl -X GET http://localhost:8000/api/tasks \
 - Check that API requests are being made to the correct endpoints
 
 ## Next Steps
-1. Explore the API documentation at `http://localhost:8000/docs`
+1. Explore the API documentation at `http://0.0.0.0:8000/docs`
 2. Review the data models in `specs/001-secure-todo-app/data-model.md`
 3. Examine the API contracts in `specs/001-secure-todo-app/contracts/api-contracts.md`
 4. Run the test suite to verify all functionality

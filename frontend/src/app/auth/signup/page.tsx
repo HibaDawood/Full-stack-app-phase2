@@ -5,7 +5,7 @@ import SignUpForm from '@/src/components/auth/SignUpForm';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/src/app/api/client';
 import { User } from '@/src/lib/types';
-import { setAuthToken, setUserData } from '@/src/lib/auth';
+import { setUserData } from '@/src/lib/auth';
 import { isValidEmail, isValidPassword } from '@/src/lib/utils';
 
 const SignUpPage: React.FC = () => {
@@ -35,7 +35,7 @@ const SignUpPage: React.FC = () => {
 
     try {
       // Call the API to register the user
-      const response = await apiClient.authPost<{ user: User; token: string }>('/auth/signup', {
+      const response = await apiClient.post<{ success: boolean; user: User }>('/auth/signup', {
         email: formData.email,
         password: formData.password,
       });
@@ -46,16 +46,17 @@ const SignUpPage: React.FC = () => {
         return;
       }
 
-      if (response.data) {
-        // Store the token and user data in localStorage
+      if (response.data && response.data.success) {
+        // Store the user data in localStorage
         if (typeof window !== 'undefined') {
-          setAuthToken(response.data.token);
           setUserData(response.data.user);
         }
 
-        // Redirect to the dashboard
-        router.push('/dashboard');
+        // Redirect to tasks
+        router.push('/tasks');
         router.refresh(); // Refresh to update the UI based on auth state
+      } else {
+        setError('Sign up failed. Please try again.');
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during registration');
@@ -65,7 +66,7 @@ const SignUpPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+    <div className="min-h-screen flex dark:text-amber-100 items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <SignUpForm onSignUp={handleSignUp} loading={loading} error={error} />
     </div>
   );

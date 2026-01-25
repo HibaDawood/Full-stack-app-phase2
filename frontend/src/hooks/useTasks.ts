@@ -6,6 +6,8 @@ export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'in-progress' | 'completed'>('all');
 
   // Fetch tasks
   const fetchTasks = async () => {
@@ -60,10 +62,11 @@ export const useTasks = () => {
         setError(response.error);
         return null;
       } else if (response.data) {
+        const updatedTask = response.data.task;
         setTasks(tasks.map(task =>
-          task.id === taskId ? response.data.task : task
+          task.id === taskId ? updatedTask : task
         ));
-        return response.data.task;
+        return updatedTask;
       }
     } catch (err: any) {
       setError(err.message || 'Failed to update task');
@@ -108,6 +111,23 @@ export const useTasks = () => {
     }
   };
 
+  // Filter tasks based on search query and status
+  const filteredTasks = tasks.filter(task => {
+    // Check if task exists and has required properties
+    if (!task) return false;
+
+    const matchesSearch = task.title && task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesStatus = filterStatus === 'all' || task.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Reset filters
+  const resetFilters = () => {
+    setSearchQuery('');
+    setFilterStatus('all');
+  };
+
   // Load tasks when hook is initialized
   useEffect(() => {
     fetchTasks();
@@ -115,8 +135,14 @@ export const useTasks = () => {
 
   return {
     tasks,
+    filteredTasks,
     loading,
     error,
+    searchQuery,
+    setSearchQuery,
+    filterStatus,
+    setFilterStatus,
+    resetFilters,
     fetchTasks,
     createTask,
     updateTask,

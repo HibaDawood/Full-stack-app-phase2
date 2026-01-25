@@ -47,12 +47,11 @@ cp .env.example .env.local
 Edit the `.env.local` file with your specific configurations:
 ```bash
 # Backend API configuration
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL=.http://0.0.0.0:8000/
 
 # Better Auth configuration
-NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:8080
-BETTER_AUTH_SECRET=your_jwt_secret_key_here
-
+NEXT_PUBLIC_BETTER_AUTH_URL=http://0.0.0.0:8000/
+B
 # Other configurations
 NEXT_PUBLIC_APP_NAME="Todo App"
 ```
@@ -210,8 +209,8 @@ frontend/
 
 ### Environment Variables for Production
 ```
-NEXT_PUBLIC_API_BASE_URL=https://api.yourdomain.com
-NEXT_PUBLIC_BETTER_AUTH_URL=https://auth.yourdomain.com
+NEXT_PUBLIC_API_BASE_URL=https:/api.yourdomain.com
+NEXT_PUBLIC_BETTER_AUTH_URL=https:/auth.yourdomain.com
 BETTER_AUTH_SECRET=production_jwt_secret
 NEXT_PUBLIC_APP_NAME="Production Todo App"
 ```

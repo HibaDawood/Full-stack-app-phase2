@@ -1,275 +1,116 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/src/components/ui/Button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/src/components/ui/Card';
-import { Input } from '@/src/components/ui/Input';
-import { apiClient } from '@/src/app/api/client';
-import { User } from '@/src/lib/types';
-import { isValidEmail, isValidPassword } from '@/src/lib/utils';
-import { useAuth } from '@/src/hooks/useAuth';
-import { useTasks } from '@/src/hooks/useTasks';
-import TaskList from '@/src/components/tasks/TaskList';
-import TaskModal from '@/src/components/tasks/TaskModal';
+import { authAPI } from './api/client';
 
-const HomePage: React.FC = () => {
+export default function Home() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSignup, setIsSignup] = useState(true);
+  const [error, setError] = useState('');
   const router = useRouter();
-  const { user, isLoading, signIn, signUp, signOut } = useAuth();
-  const { tasks, loading, error, createTask, updateTask, deleteTask, toggleTaskCompletion } = useTasks();
-  const [isSignUpMode, setIsSignUpMode] = useState(false);
-  const [authForm, setAuthForm] = useState({
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [editingTask, setEditingTask] = useState<any>(null);
 
-  const handleAuthSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAuthError(null);
+    setError('');
 
-    // Perform client-side validation
-    if (!isValidEmail(authForm.email)) {
-      setAuthError('Please enter a valid email address');
-      return;
-    }
-
-    if (!isValidPassword(authForm.password)) {
-      setAuthError('Password must be at least 8 characters long');
-      return;
-    }
-
-    if (isSignUpMode && authForm.password !== authForm.confirmPassword) {
-      setAuthError('Passwords do not match');
+    if (isSignup && password !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
     try {
-      if (isSignUpMode) {
-        await signUp({
-          email: authForm.email,
-          password: authForm.password,
-          confirmPassword: authForm.confirmPassword
-        });
+      if (isSignup) {
+        await authAPI.signup(email, password);
       } else {
-        await signIn({
-          email: authForm.email,
-          password: authForm.password
-        });
+        await authAPI.signin(email, password);
       }
+
+      // Redirect to tasks page after successful authentication
+      router.push('/tasks');
     } catch (err: any) {
-      setAuthError(err.message || 'An error occurred during authentication');
+      setError(err.message || 'An error occurred');
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setAuthForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleCreateTask = () => {
-    setEditingTask(null);
-    setShowModal(true);
-  };
-
-  const handleEditTask = (task: any) => {
-    setEditingTask(task);
-    setShowModal(true);
-  };
-
-  const handleSaveTask = async (taskData: { title: string; description?: string; status?: string }) => {
-    const validStatus = (taskData.status as 'pending' | 'in-progress' | 'completed') || 'pending';
-
-    if (editingTask) {
-      // Update existing task
-      await updateTask(editingTask.id, {
-        ...taskData,
-        status: validStatus
-      });
-    } else {
-      // Create new task
-      await createTask({
-        ...taskData,
-        status: validStatus
-      });
-    }
-
-    setShowModal(false);
-    setEditingTask(null);
-  };
-
-  const handleDeleteTask = async (taskId: string) => {
-    if (!window.confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
-
-    await deleteTask(taskId);
-  };
-
-  const handleCompleteTask = async (taskId: string) => {
-    await toggleTaskCompletion(taskId);
-  };
-
-  // If still loading auth state, show loading indicator
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If user is not authenticated, show auth forms
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>{isSignUpMode ? 'Sign Up' : 'Sign In'}</CardTitle>
-            <CardDescription>
-              {isSignUpMode
-                ? 'Create an account to get started'
-                : 'Welcome back! Please sign in to your account'}
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleAuthSubmit}>
-            <CardContent className="space-y-4">
-              {authError && (
-                <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">
-                  {authError}
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">Email</label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={authForm.email}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">Password</label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={authForm.password}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              {isSignUpMode && (
-                <div className="space-y-2">
-                  <label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</label>
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    value={authForm.confirmPassword}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-col">
-              <Button
-                type="submit"
-                className="w-full"
-              >
-                {isSignUpMode ? 'Sign Up' : 'Sign In'}
-              </Button>
-              <p className="mt-4 text-center text-sm text-gray-600">
-                {isSignUpMode ? (
-                  <>
-                    Already have an account?{' '}
-                    <button
-                      type="button"
-                      className="text-blue-600 hover:underline"
-                      onClick={() => setIsSignUpMode(false)}
-                    >
-                      Sign in
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    Don't have an account?{' '}
-                    <button
-                      type="button"
-                      className="text-blue-600 hover:underline"
-                      onClick={() => setIsSignUpMode(true)}
-                    >
-                      Sign up
-                    </button>
-                  </>
-                )}
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
-    );
-  }
-
-  // If user is authenticated, show tasks UI
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Your Tasks</h1>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">
-              Welcome, {user?.email}
-            </span>
-            <Button
-              variant="outline"
-              onClick={signOut}
-            >
-              Sign Out
-            </Button>
-          </div>
-        </div>
+    <div className="flex min-h-screen flex-col items-center justify-between p-24">
+      <div className="z-10 w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+        <h1 className="mb-8 text-center text-3xl font-bold">Todo App</h1>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Your Tasks</CardTitle>
-            <Button onClick={handleCreateTask}>Create Task</Button>
-          </CardHeader>
-          <CardContent>
-            <TaskList
-              tasks={tasks}
-              onEdit={handleEditTask}
-              onDelete={handleDeleteTask}
-              onComplete={handleCompleteTask}
-              loading={loading}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              required
             />
-          </CardContent>
-        </Card>
+          </div>
 
-        <TaskModal
-          isOpen={showModal}
-          onClose={() => {
-            setShowModal(false);
-            setEditingTask(null);
-          }}
-          task={editingTask}
-          onSave={handleSaveTask}
-        />
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              required
+            />
+          </div>
+
+          {isSignup && (
+            <div className="mb-4">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                required
+              />
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-4 text-red-600 text-sm">{error}</div>
+          )}
+
+          <button
+            type="submit"
+            className="w-full rounded-md bg-indigo-600 py-2 px-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            {isSignup ? 'Sign Up' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => {
+              setIsSignup(!isSignup);
+              setError('');
+            }}
+            className="text-indigo-600 hover:text-indigo-800"
+          >
+            {isSignup
+              ? 'Already have an account? Sign In'
+              : "Don't have an account? Sign Up"}
+          </button>
+        </div>
       </div>
     </div>
   );
-};
-
-export default HomePage;
+}

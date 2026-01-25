@@ -24,7 +24,6 @@ This project operates under a constitution that defines our core principles and 
 - **Backend**: Python FastAPI
 - **ORM**: SQLModel
 - **Database**: Neon Serverless PostgreSQL
-- **Authentication**: Better Auth with JWT
 
 ### Security Constraints
 

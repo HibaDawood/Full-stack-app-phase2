@@ -19,9 +19,8 @@ export interface Task {
 
 // API Response Models
 export interface AuthResponse {
+  success: boolean;
   user: User;
-  token: string; // JWT token
-  expires_at: string; // ISO date format
 }
 
 export interface TaskListResponse {

@@ -84,7 +84,7 @@ poetry run dev
 
 ## API Usage
 
-Once the server is running, you can access the API at `http://localhost:8000`.
+Once the server is running, you can access the API at `http://0.0.0.0:8000/`.
 
 ### Authentication
 All API endpoints require a valid JWT token in the Authorization header:
@@ -97,14 +97,14 @@ Authorization: Bearer <your-jwt-token>
 #### Get all tasks for authenticated user
 ```bash
 curl -X GET \
-  http://localhost:8000/api/tasks \
+  http://0.0.0.0:8000/api/tasks \
   -H "Authorization: Bearer <your-jwt-token>"
 ```
 
 #### Create a new task
 ```bash
 curl -X POST \
-  http://localhost:8000/api/tasks \
+  http://0.0.0.0:8000/api/tasks \
   -H "Authorization: Bearer <your-jwt-token>" \
   -H "Content-Type: application/json" \
   -d '{"title": "New Task", "description": "Task description", "status": "pending"}'

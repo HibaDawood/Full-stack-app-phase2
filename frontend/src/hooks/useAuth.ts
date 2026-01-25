@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/src/app/api/client';
 import { User, AuthState } from '@/src/lib/types';
-import { setAuthToken, setUserData, removeAuthToken } from '@/src/lib/auth';
+import { setUserData, removeUserData } from '@/src/lib/auth';
 
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -37,7 +37,6 @@ export const useAuth = () => {
         console.error('Failed to parse user data from localStorage:', error);
         // Clear invalid data
         localStorage.removeItem('user');
-        localStorage.removeItem('auth_token');
         setAuthState({
           user: null,
           isLoading: false,
@@ -56,8 +55,8 @@ export const useAuth = () => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await apiClient.authPost<{
-        token: string;
+      const response = await apiClient.post<{
+        success: boolean;
         user: { id: string; email: string };
       }>('/auth/signup', {
         email: formData.email,
@@ -77,9 +76,8 @@ export const useAuth = () => {
           updated_at: new Date().toISOString()  // Use current time as a fallback
         };
 
-        // Store the token and user data in localStorage
+        // Store the user data in localStorage
         if (typeof window !== 'undefined') {
-          setAuthToken(response.data.token);
           setUserData(completeUser);
         }
 
@@ -108,8 +106,8 @@ export const useAuth = () => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await apiClient.authPost<{
-        token: string;
+      const response = await apiClient.post<{
+        success: boolean;
         user: { id: string; email: string };
       }>('/auth/signin', {
         email: formData.email,
@@ -129,9 +127,8 @@ export const useAuth = () => {
           updated_at: new Date().toISOString()  // Use current time as a fallback
         };
 
-        // Store the token and user data in localStorage
+        // Store the user data in localStorage
         if (typeof window !== 'undefined') {
-          setAuthToken(response.data.token);
           setUserData(completeUser);
         }
 
@@ -157,10 +154,9 @@ export const useAuth = () => {
   };
 
   const signOut = () => {
-    // Clear the authentication token and user data from localStorage
+    // Clear the user data from localStorage
     if (typeof window !== 'undefined') {
-      removeAuthToken();
-      localStorage.removeItem('user');
+      removeUserData();
     }
 
     setAuthState({

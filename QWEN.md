@@ -29,20 +29,10 @@ This project involves transforming a console application into a modern multi-use
 
 The following specialized agents are available for this project:
 
-- **Auth Agent**: For authentication implementation using Better Auth, including JWT token handling
+- **Auth Agent**: For authentication implementation
 - **Frontend Agent**: For frontend development using Next.js
 - **DB Agent**: For database design and operations with Neon Serverless PostgreSQL
 - **Backend Agent**: For FastAPI development and API endpoint creation
-
-### Authentication Flow
-
-Better Auth is configured to issue JWT (JSON Web Token) tokens when users log in. The authentication flow works as follows:
-
-1. User logs in on Frontend → Better Auth creates a session and issues a JWT token
-2. Frontend makes API call → Includes the JWT token in the Authorization: Bearer <token> header
-3. Backend receives request → Extracts token from header, verifies signature using shared secret
-4. Backend identifies user → Decodes token to get user ID, email, etc. and matches it with the user ID in the URL
-5. Backend filters data → Returns only tasks belonging to that user
 
 ## Core Guarantees (Product Promise)
 

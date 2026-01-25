@@ -184,7 +184,7 @@ Compare your executed workflow against the user's original intent.
 ✅ Workflow executed successfully:
   • Branch: feature/add-auth-validation
   • Commit: "feat(auth): add login validation"
-  • PR: https://github.com/...
+  • PR: https:/github.com/...
 ```
 
 **If outcome differs significantly:** 🔴 Invoke human validator

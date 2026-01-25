@@ -2,32 +2,19 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/src/app/api/client';
 
 const SignOutPage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const logout = async () => {
-      try {
-        // Call the API to log out the user (this may invalidate the session server-side)
-        await apiClient.post('/api/auth/logout', {});
-      } catch (error) {
-        // Even if the API call fails, we should still clear the local session
-        console.error('Logout API call failed:', error);
-      } finally {
-        // Clear the authentication token and user data from localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('user');
-        }
+    // Clear the authentication token and user data from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user');
+    }
 
-        // Redirect to the home page or sign in page
-        router.push('/');
-        router.refresh(); // Refresh to update the UI based on auth state
-      }
-    };
-
-    logout();
+    // Redirect to the home page or sign in page
+    router.push('/');
+    router.refresh(); // Refresh to update the UI based on auth state
   }, [router]);
 
   return (

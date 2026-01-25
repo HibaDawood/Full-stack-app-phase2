@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import SignInForm from '@/src/components/auth/SignInForm';
 import { apiClient } from '@/src/app/api/client';
 import { User } from '@/src/lib/types';
-import { setAuthToken, setUserData } from '@/src/lib/auth';
+import { setUserData } from '@/src/lib/auth';
 import { isValidEmail } from '@/src/lib/utils';
 
 const SignInPage: React.FC = () => {
@@ -30,9 +30,9 @@ const SignInPage: React.FC = () => {
 
     try {
       // ✅ API call
-      const response = await apiClient.authPost<{
+      const response = await apiClient.post<{
+        success: boolean;
         user: User;
-        token: string;
       }>('/auth/signin', {
         email: formData.email,
         password: formData.password,
@@ -43,18 +43,19 @@ const SignInPage: React.FC = () => {
         return;
       }
 
-      if (response.data) {
+      if (response.data && response.data.success) {
         // ✅ Store auth data
         if (typeof window !== 'undefined') {
-          setAuthToken(response.data.token);
           setUserData(response.data.user);
         }
 
-        // ✅ IMPORTANT: redirect to dashboard
-        router.push('/dashboard');
+        // ✅ IMPORTANT: redirect to tasks
+        router.push('/tasks');
 
         // ✅ force rerender so useAuth updates
         router.refresh();
+      } else {
+        setError('Sign in failed. Please try again.');
       }
     } catch (err: any) {
       setError(err?.message || 'An error occurred during sign in');
@@ -65,7 +66,7 @@ const SignInPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center
-      bg-gradient-to-br from-blue-50 to-indigo-100
+      bg-linear-to-br from-blue-50 to-indigo-100
       dark:from-gray-900 dark:to-gray-950
       py-12 px-4 sm:px-6 lg:px-8
       transition-colors duration-300"
