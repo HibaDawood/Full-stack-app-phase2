@@ -20,6 +20,8 @@ export interface Task {
   description?: string;
   status: 'pending' | 'in-progress' | 'completed';
   user_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface TaskCreate {

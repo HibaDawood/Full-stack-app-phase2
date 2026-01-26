@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react';
 import { tasksAPI, Task } from '../api/client';
 import TaskItem from '@/src/components/tasks/TaskItem';
+import type { Task as LibTask } from '@/src/lib/types';
 import TaskModal from '@/src/components/tasks/TaskModal';
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<LibTask[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [newTaskStatus, setNewTaskStatus] = useState<'pending' | 'in-progress' | 'completed'>('pending');
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<LibTask | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -26,8 +27,8 @@ export default function TasksPage() {
       setLoading(true);
       const fetchedTasks = await tasksAPI.getTasks();
 
-      // 🔒 SAFETY: tasks are properly typed
-      const safeTasks = fetchedTasks;
+      // 🔒 SAFETY: ensure user_id is defined
+      const safeTasks = fetchedTasks.filter(task => task.user_id !== undefined) as LibTask[];
 
       setTasks(safeTasks);
       setError('');
@@ -54,7 +55,7 @@ export default function TasksPage() {
         status: newTaskStatus,
       });
 
-      setTasks([...tasks, newTask]);
+      setTasks([...tasks, newTask as LibTask]);
       setNewTaskTitle('');
       setNewTaskDescription('');
       setNewTaskStatus('pending'); // Reset to default
@@ -72,8 +73,8 @@ export default function TasksPage() {
     try {
       const updatedTask = await tasksAPI.updateTask(taskId, { status: newStatus });
       setTasks(tasks.map(task =>
-        task.id === taskId ? updatedTask : task
-      ));
+        task.id === taskId ? (updatedTask as LibTask) : task
+      ) as LibTask[]);
     } catch (err: any) {
       setError(err.message || 'Failed to update task');
     }
@@ -90,31 +91,37 @@ export default function TasksPage() {
   };
 
   // ---------------- EDIT TASK ----------------
-  const startEditing = (task: Task) => {
+  const startEditing = (task: LibTask) => {
+    if (task.user_id === undefined) {
+      setError('Cannot edit task without user_id');
+      return;
+    }
     setEditingTask(task);
     setIsModalOpen(true);
   };
 
-  const saveEdit = async (taskData: { title: string; description?: string; status: 'pending' | 'in-progress' | 'completed' }) => {
-    if (!editingTask) return;
+  const saveEdit = (taskData: { title: string; description?: string; status?: 'pending' | 'in-progress' | 'completed' }) => {
+    if (!editingTask || !taskData.status) return;
 
-    try {
-      const updatedTask = await tasksAPI.updateTask(editingTask.id, {
-        title: taskData.title,
-        description: taskData.description,
-        status: taskData.status,
-      });
+    (async () => {
+      try {
+        const updatedTask = await tasksAPI.updateTask(editingTask.id, {
+          title: taskData.title,
+          description: taskData.description,
+          status: taskData.status,
+        });
 
-      setTasks(tasks.map(task =>
-        task.id === editingTask.id
-          ? updatedTask
-          : task
-      ));
+        setTasks(tasks.map(task =>
+          task.id === editingTask.id
+            ? (updatedTask as LibTask)
+            : task
+        ));
 
-      cancelEdit();
-    } catch (err: any) {
-      setError(err.message || 'Failed to update task');
-    }
+        cancelEdit();
+      } catch (err: any) {
+        setError(err.message || 'Failed to update task');
+      }
+    })();
   };
 
   const cancelEdit = () => {
@@ -195,11 +202,11 @@ export default function TasksPage() {
           Pending ({filteredPendingTasks.length})
         </h2>
 
-        {filteredPendingTasks.map(task => (
+        {filteredPendingTasks.filter(task => task.user_id !== undefined).map(task => (
           <TaskItem
             key={task.id}
-            task={task}
-            onEdit={() => startEditing(task)}
+            task={task as LibTask}
+            onEdit={() => startEditing(task as LibTask)}
             onDelete={() => deleteTask(task.id)}
             onComplete={(completed: boolean) => toggleTaskCompletion(task.id, completed ? 'completed' : 'pending')}
           />
@@ -207,14 +214,14 @@ export default function TasksPage() {
 
         {/* IN PROGRESS */}
         <h2 className="mt-8 mb-2 text-xl font-semibold">
-          In Progress ({filteredInProgressTasks.length})
+          In Progress ({filteredInProgressTasks.filter(task => task.user_id !== undefined).length})
         </h2>
 
-        {filteredInProgressTasks.map(task => (
+        {filteredInProgressTasks.filter(task => task.user_id !== undefined).map(task => (
           <TaskItem
             key={task.id}
-            task={task}
-            onEdit={() => startEditing(task)}
+            task={task as LibTask}
+            onEdit={() => startEditing(task as LibTask)}
             onDelete={() => deleteTask(task.id)}
             onComplete={(completed: boolean) => toggleTaskCompletion(task.id, completed ? 'completed' : 'pending')}
           />
@@ -222,14 +229,14 @@ export default function TasksPage() {
 
         {/* COMPLETED */}
         <h2 className="mt-8 mb-2 text-xl font-semibold">
-          Completed ({filteredCompletedTasks.length})
+          Completed ({filteredCompletedTasks.filter(task => task.user_id !== undefined).length})
         </h2>
 
-        {filteredCompletedTasks.map(task => (
+        {filteredCompletedTasks.filter(task => task.user_id !== undefined).map(task => (
           <TaskItem
             key={task.id}
-            task={task}
-            onEdit={() => startEditing(task)}
+            task={task as LibTask}
+            onEdit={() => startEditing(task as LibTask)}
             onDelete={() => deleteTask(task.id)}
             onComplete={(completed: boolean) => toggleTaskCompletion(task.id, completed ? 'completed' : 'pending')}
           />

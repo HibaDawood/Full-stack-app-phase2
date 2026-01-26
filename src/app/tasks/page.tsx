@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { tasksAPI, Task } from './api/client';
+import { tasksAPI, Task } from '../api/client';
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -42,7 +42,6 @@ export default function TasksPage() {
       const newTask = await tasksAPI.createTask({
         title: newTaskTitle,
         description: newTaskDescription,
-        status: 'pending',  // Default status
         user_id: userId,
       });
 
@@ -59,7 +58,7 @@ export default function TasksPage() {
     try {
       const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
       const updatedTask = await tasksAPI.updateTask(taskId, { status: newStatus });
-      setTasks(tasks.map(task =>
+      setTasks(tasks.map((task: Task) =>
         task.id === taskId ? updatedTask : task
       ));
     } catch (err: any) {
@@ -70,7 +69,7 @@ export default function TasksPage() {
   const deleteTask = async (taskId: number) => {
     try {
       await tasksAPI.deleteTask(taskId);
-      setTasks(tasks.filter(task => task.id !== taskId));
+      setTasks(tasks.filter((task: Task) => task.id !== taskId));
     } catch (err: any) {
       setError(err.message || 'Failed to delete task');
     }
@@ -107,7 +106,7 @@ export default function TasksPage() {
             value={newTaskDescription}
             onChange={(e) => setNewTaskDescription(e.target.value)}
             placeholder="Description (optional)"
-            className="flex-grow rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="grow rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
           <button
             type="submit"
@@ -121,11 +120,11 @@ export default function TasksPage() {
           {tasks.length === 0 ? (
             <p className="text-center text-gray-500">No tasks yet. Add one above!</p>
           ) : (
-            tasks.map((task) => (
+            tasks.map((task: Task) => (
               <div
                 key={task.id}
                 className={`flex items-center justify-between rounded-lg border p-4 ${
-                  task.completed ? 'bg-green-50' : 'bg-white'
+                  task.status === 'completed' ? 'bg-green-50' : 'bg-white'
                 }`}
               >
                 <div className="flex items-center">
