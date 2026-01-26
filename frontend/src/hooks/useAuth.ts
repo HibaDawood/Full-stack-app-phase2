@@ -153,17 +153,28 @@ export const useAuth = () => {
     }
   };
 
-  const signOut = () => {
-    // Clear the user data from localStorage
-    if (typeof window !== 'undefined') {
-      removeUserData();
-    }
+  const signOut = async () => {
+    try {
+      // Call the backend signout endpoint
+      await apiClient.post('localhost:3000', {});
+    } catch (error) {
+      console.error('Signout error:', error);
+      // Even if the backend call fails, we should still clear local data
+    } finally {
+      // Clear the user data from localStorage
+      if (typeof window !== 'undefined') {
+        removeUserData();
+      }
 
-    setAuthState({
-      user: null,
-      isLoading: false,
-      error: null,
-    });
+      setAuthState({
+        user: null,
+        isLoading: false,
+        error: null,
+      });
+
+      // Redirect to homepage after signout
+      window.location.href = '/';
+    }
   };
 
   const updateUser = (userData: Partial<User>) => {

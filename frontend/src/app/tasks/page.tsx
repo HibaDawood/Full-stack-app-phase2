@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { tasksAPI, Task } from '../api/client';
+import TaskItem from '@/src/components/tasks/TaskItem';
+import TaskModal from '@/src/components/tasks/TaskModal';
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [newTaskStatus, setNewTaskStatus] = useState<'pending' | 'in-progress' | 'completed'>('pending');
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState('');
-  const [editingDescription, setEditingDescription] = useState('');
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -64,17 +65,9 @@ export default function TasksPage() {
   };
 
   // ---------------- TOGGLE TASK ----------------
-  const toggleTaskCompletion = async (taskId: string, currentStatus: 'pending' | 'in-progress' | 'completed') => {
-    let newStatus: 'pending' | 'in-progress' | 'completed';
-
-    // Cycle through statuses: pending -> in-progress -> completed -> pending
-    if (currentStatus === 'pending') {
-      newStatus = 'in-progress';
-    } else if (currentStatus === 'in-progress') {
-      newStatus = 'completed';
-    } else {
-      newStatus = 'pending';
-    }
+  const toggleTaskCompletion = async (taskId: string, intendedStatus: 'pending' | 'completed') => {
+    // Use the intended status directly
+    const newStatus = intendedStatus;
 
     try {
       const updatedTask = await tasksAPI.updateTask(taskId, { status: newStatus });
@@ -98,22 +91,22 @@ export default function TasksPage() {
 
   // ---------------- EDIT TASK ----------------
   const startEditing = (task: Task) => {
-    setEditingTaskId(task.id);
-    setEditingTitle(task.title);
-    setEditingDescription(task.description || '');
+    setEditingTask(task);
+    setIsModalOpen(true);
   };
 
-  const saveEdit = async () => {
-    if (!editingTaskId) return;
+  const saveEdit = async (taskData: { title: string; description?: string; status: 'pending' | 'in-progress' | 'completed' }) => {
+    if (!editingTask) return;
 
     try {
-      const updatedTask = await tasksAPI.updateTask(editingTaskId, {
-        title: editingTitle,
-        description: editingDescription,
+      const updatedTask = await tasksAPI.updateTask(editingTask.id, {
+        title: taskData.title,
+        description: taskData.description,
+        status: taskData.status,
       });
 
       setTasks(tasks.map(task =>
-        task.id === editingTaskId
+        task.id === editingTask.id
           ? updatedTask
           : task
       ));
@@ -125,9 +118,8 @@ export default function TasksPage() {
   };
 
   const cancelEdit = () => {
-    setEditingTaskId(null);
-    setEditingTitle('');
-    setEditingDescription('');
+    setEditingTask(null);
+    setIsModalOpen(false);
   };
 
   // ---------------- FILTERS ----------------
@@ -207,16 +199,9 @@ export default function TasksPage() {
           <TaskItem
             key={task.id}
             task={task}
-            onToggle={toggleTaskCompletion}
-            onDelete={deleteTask}
-            onEdit={startEditing}
-            editingTaskId={editingTaskId}
-            editingTitle={editingTitle}
-            editingDescription={editingDescription}
-            setEditingTitle={setEditingTitle}
-            setEditingDescription={setEditingDescription}
-            saveEdit={saveEdit}
-            cancelEdit={cancelEdit}
+            onEdit={() => startEditing(task)}
+            onDelete={() => deleteTask(task.id)}
+            onComplete={(completed: boolean) => toggleTaskCompletion(task.id, completed ? 'completed' : 'pending')}
           />
         ))}
 
@@ -229,16 +214,9 @@ export default function TasksPage() {
           <TaskItem
             key={task.id}
             task={task}
-            onToggle={toggleTaskCompletion}
-            onDelete={deleteTask}
-            onEdit={startEditing}
-            editingTaskId={editingTaskId}
-            editingTitle={editingTitle}
-            editingDescription={editingDescription}
-            setEditingTitle={setEditingTitle}
-            setEditingDescription={setEditingDescription}
-            saveEdit={saveEdit}
-            cancelEdit={cancelEdit}
+            onEdit={() => startEditing(task)}
+            onDelete={() => deleteTask(task.id)}
+            onComplete={(completed: boolean) => toggleTaskCompletion(task.id, completed ? 'completed' : 'pending')}
           />
         ))}
 
@@ -251,89 +229,20 @@ export default function TasksPage() {
           <TaskItem
             key={task.id}
             task={task}
-            onToggle={toggleTaskCompletion}
-            onDelete={deleteTask}
-            onEdit={startEditing}
-            editingTaskId={editingTaskId}
-            editingTitle={editingTitle}
-            editingDescription={editingDescription}
-            setEditingTitle={setEditingTitle}
-            setEditingDescription={setEditingDescription}
-            saveEdit={saveEdit}
-            cancelEdit={cancelEdit}
+            onEdit={() => startEditing(task)}
+            onDelete={() => deleteTask(task.id)}
+            onComplete={(completed: boolean) => toggleTaskCompletion(task.id, completed ? 'completed' : 'pending')}
           />
         ))}
       </div>
-    </div>
-  );
-}
 
-// ---------------- TASK ITEM ----------------
-function TaskItem({
-  task,
-  onToggle,
-  onDelete,
-  onEdit,
-  editingTaskId,
-  editingTitle,
-  editingDescription,
-  setEditingTitle,
-  setEditingDescription,
-  saveEdit,
-  cancelEdit,
-}: any) {
-  const isCompleted = task.status === 'completed';
-  const isInProgress = task.status === 'in-progress';
-
-  return (
-    <div className={`mb-3 rounded border p-4 ${isCompleted ? 'bg-green-50' : isInProgress ? 'bg-yellow-50' : 'bg-white'}`}>
-      {editingTaskId === task.id ? (
-        <>
-          <input
-            value={editingTitle}
-            onChange={e => setEditingTitle(e.target.value)}
-            className="mb-2 w-full rounded border p-2"
-          />
-          <textarea
-            value={editingDescription}
-            onChange={e => setEditingDescription(e.target.value)}
-            className="mb-2 w-full rounded border p-2"
-          />
-          <div className="flex gap-2">
-            <button onClick={saveEdit} className="bg-indigo-600 px-3 py-1 text-white rounded">
-              Save
-            </button>
-            <button onClick={cancelEdit} className="bg-gray-500 px-3 py-1 text-white rounded">
-              Cancel
-            </button>
-          </div>
-        </>
-      ) : (
-        <div className="flex items-start gap-3">
-          <input
-            type="checkbox"
-            checked={isCompleted}
-            onChange={() => onToggle(task.id, task.status)}
-          />
-          <div className="flex-1">
-            <h3 className={isCompleted ? 'line-through text-gray-500' : ''}>
-              {task.title}
-              <span className="ml-2 text-xs px-2 py-1 rounded-full bg-gray-200">
-                {task.status}
-              </span>
-            </h3>
-            {task.description && (
-              <p className="text-sm text-gray-600">{task.description}</p>
-            )}
-          </div>
-          <button onClick={() => onEdit(task)} className="text-blue-600">
-            Edit
-          </button>
-          <button onClick={() => onDelete(task.id)} className="text-red-600">
-            Delete
-          </button>
-        </div>
-      )}
+      {/* Task Modal */}
+      <TaskModal
+        isOpen={isModalOpen}
+        onClose={cancelEdit}
+        task={editingTask}
+        onSave={saveEdit}
+      />
     </div>
   );
 }
