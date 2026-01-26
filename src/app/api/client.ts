@@ -1,7 +1,7 @@
 // src/app/api/client.ts
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://hiba-05-todoapp-phase-2.hf.space';
 
-console.log('API_BASE_URL:', API_BASE_URL); // Debug log
+console.log('API_BASE_URL:', API_BASE_URL); 
 
 export interface UserCredentials {
   email: string;
