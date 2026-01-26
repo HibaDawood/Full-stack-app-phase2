@@ -23,8 +23,14 @@ def get_tasks(user_id: Optional[int] = None, session: Session = Depends(get_sess
     ]
 
 @router.get("/{task_id}", response_model=TaskRead)
-def get_task(task_id: int, session: Session = Depends(get_session)):
-    task = session.get(Task, task_id)
+def get_task(task_id: str, session: Session = Depends(get_session)):
+    from uuid import UUID
+    try:
+        task_uuid = UUID(task_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid task ID format")
+
+    task = session.get(Task, task_uuid)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return TaskRead.from_orm(task) if hasattr(TaskRead, 'from_orm') else TaskRead(**task.model_dump())
@@ -55,8 +61,14 @@ def create_task(task: TaskCreate, session: Session = Depends(get_session)):
     return TaskRead.from_orm(db_task) if hasattr(TaskRead, 'from_orm') else TaskRead(**db_task.model_dump())
 
 @router.put("/{task_id}", response_model=TaskRead)
-def update_task(task_id: int, task_update: TaskUpdate, session: Session = Depends(get_session)):
-    db_task = session.get(Task, task_id)
+def update_task(task_id: str, task_update: TaskUpdate, session: Session = Depends(get_session)):
+    from uuid import UUID
+    try:
+        task_uuid = UUID(task_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid task ID format")
+
+    db_task = session.get(Task, task_uuid)
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
 
@@ -70,8 +82,14 @@ def update_task(task_id: int, task_update: TaskUpdate, session: Session = Depend
     return TaskRead.from_orm(db_task) if hasattr(TaskRead, 'from_orm') else TaskRead(**db_task.model_dump())
 
 @router.delete("/{task_id}")
-def delete_task(task_id: int, session: Session = Depends(get_session)):
-    task = session.get(Task, task_id)
+def delete_task(task_id: str, session: Session = Depends(get_session)):
+    from uuid import UUID
+    try:
+        task_uuid = UUID(task_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid task ID format")
+
+    task = session.get(Task, task_uuid)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
