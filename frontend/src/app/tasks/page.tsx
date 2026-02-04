@@ -5,6 +5,7 @@ import { tasksAPI, Task } from '../api/client';
 import TaskItem from '@/src/components/tasks/TaskItem';
 import type { Task as LibTask } from '@/src/lib/types';
 import TaskModal from '@/src/components/tasks/TaskModal';
+import ChatBot from '@/src/components/chatbot/ChatBot';
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<LibTask[]>([]);
@@ -250,6 +251,9 @@ export default function TasksPage() {
         task={editingTask}
         onSave={saveEdit}
       />
+
+      {/* ChatBot Component */}
+      <ChatBot />
     </div>
   );
 }

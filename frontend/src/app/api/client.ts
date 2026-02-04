@@ -1,7 +1,7 @@
 "use client";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://hiba-05-todoapp-phase-2.hf.space";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Define types
 export interface User {

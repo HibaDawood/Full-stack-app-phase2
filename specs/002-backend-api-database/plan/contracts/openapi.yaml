@@ -4,7 +4,7 @@ info:
   description: Backend API for managing user tasks with JWT authentication
   version: 1.0.0
 servers:
-  - url: https:/hiba-05-todo-app-phase2.hf.space/
+  - url: http://localhost:8000
     description: Development server
   - url: https:/api.todoapp.com
     description: Production server

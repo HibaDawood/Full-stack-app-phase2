@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from typing import Dict, Any
 from src.database import get_session
-from src.models import User, UserCreate, UserLogin, UserRead
+from src.models import UserOrm as User, UserCreate, UserLogin, UserRead
 import hashlib
 import uuid
 

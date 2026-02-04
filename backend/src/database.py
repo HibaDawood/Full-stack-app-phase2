@@ -1,5 +1,5 @@
 from sqlmodel import create_engine, SQLModel, Session
-from contextlib import contextmanager
+from contextlib import contextmanager, asynccontextmanager
 from fastapi import Depends
 import os
 
@@ -23,15 +23,6 @@ def create_tables():
     """Create all tables in the database"""
     SQLModel.metadata.create_all(bind=engine)
 
-@contextmanager
-def get_session_context():
-    """Get a database session"""
-    session = Session(engine)
-    try:
-        yield session
-    finally:
-        session.close()
-
 def get_session():
-    with get_session_context() as session:
+    with Session(engine) as session:
         yield session
