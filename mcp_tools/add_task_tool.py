@@ -9,7 +9,7 @@ def add_task(task_data: Dict[str, Any]) -> Dict[str, Any]:
     try:
         # Assuming the backend is running on localhost:8000
         response = requests.post(
-            "http://localhost:8000/api/v1/tasks",
+            "https://hiba-05-todoapp-phase-2.hf.space/api/v1/tasks",
             headers={"Content-Type": "application/json"},
             data=json.dumps(task_data)
         )
