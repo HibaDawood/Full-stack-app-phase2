@@ -15,7 +15,7 @@ def update_task(task_id: str, title: str = None, description: str = None, status
     Returns:
         Dict[str, Any]: Response from the API
     """
-    api_base_url = os.getenv("NEXT_PUBLIC_API_URL", "https://hiba-05-todoapp-phase-2.hf.space")
+    api_base_url = os.getenv("NEXT_PUBLIC_API_URL", "http://localhost:8000")
     endpoint = f"{api_base_url}/api/v1/tasks/{task_id}"
     
     payload = {}

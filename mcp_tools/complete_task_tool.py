@@ -11,7 +11,7 @@ def complete_task(task_id: str) -> Dict[str, Any]:
         task_data = {"status": "completed"}
         
         response = requests.put(
-            f"https://hiba-05-todoapp-phase-2.hf.space/api/v1/tasks/{task_id}",
+            f"http://localhost:8000/api/v1/tasks/{task_id}",
             headers={"Content-Type": "application/json"},
             data=json.dumps(task_data)
         )

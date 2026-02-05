@@ -8,7 +8,7 @@ def read_tasks(filters: Dict[str, Any] = None) -> Dict[str, Any]:
     """
     try:
         # Assuming the backend is running on localhost:8000
-        url = "https://hiba-05-todoapp-phase-2.hf.space/api/v1/tasks"
+        url = "http://localhost:8000/api/v1/tasks"
         if filters:
             # Convert filters to query parameters
             query_params = "&".join([f"{k}={v}" for k, v in filters.items()])

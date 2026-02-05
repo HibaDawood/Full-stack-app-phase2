@@ -9,7 +9,7 @@ def update_task(task_id: str, task_data: Dict[str, Any]) -> Dict[str, Any]:
     try:
         # Assuming the backend is running on localhost:8000
         response = requests.put(
-            f"https://hiba-05-todoapp-phase-2.hf.space/api/v1/tasks/{task_id}",
+            f"http://localhost:8000/api/v1/tasks/{task_id}",
             headers={"Content-Type": "application/json"},
             data=json.dumps(task_data)
         )

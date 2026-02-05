@@ -13,7 +13,7 @@ def read_task(task_id: str = None) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Response from the API
     """
-    api_base_url = os.getenv("NEXT_PUBLIC_API_URL", "https://hiba-05-todoapp-phase-2.hf.space")
+    api_base_url = os.getenv("NEXT_PUBLIC_API_URL", "http://localhost:8000")
     
     if task_id:
         endpoint = f"{api_base_url}/api/v1/tasks/{task_id}"
