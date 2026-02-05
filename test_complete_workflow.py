@@ -79,7 +79,7 @@ def test_complete_workflow():
     print("\n5. Checking environment configuration...")
     env_vars = {
         "NEXT_PUBLIC_API_URL": os.getenv("NEXT_PUBLIC_API_URL", "http://localhost:8000"),
-        "GEMINI_API_KEY": os.getenv("GEMINI_API_KEY", "AIzaSyC5z4jjwAxlbFTdTzfmCF7W2khIkliYPPE")
+        "GEMINI_API_KEY": os.getenv("GEMINI_API_KEY", "AIzaSyCH21tLcZZZV_mnfIEGhGNq-3uOQJxxm-g")
     }
 
     for var, value in env_vars.items():

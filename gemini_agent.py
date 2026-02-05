@@ -7,7 +7,7 @@ from typing import Dict, Any
 load_dotenv()
 
 # Get the API key from environment variables
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyC5z4jjwAxlbFTdTzfmCF7W2khIkliYPPE")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyCH21tLcZZZV_mnfIEGhGNq-3uOQJxxm-g")
 
 # Initialize the client
 client = genai.Client(api_key=GEMINI_API_KEY)

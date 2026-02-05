@@ -32,7 +32,7 @@ from delete_task_tool import delete_task
 from complete_task_tool import complete_task, mark_task_incomplete
 
 # Configure the Gemini API
-GEMINI_API_KEY = "AIzaSyC5z4jjwAxlbFTdTzfmCF7W2khIkliYPPE"
+GEMINI_API_KEY = "AIzaSyCH21tLcZZZV_mnfIEGhGNq-3uOQJxxm-g"
 client = Client(api_key=GEMINI_API_KEY)
 
 def parse_user_request(user_input: str) -> Dict[str, Any]:
