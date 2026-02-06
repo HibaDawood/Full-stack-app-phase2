@@ -13,7 +13,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     // Use HTTP API approach (recommended for production/serverless)
     // This communicates with the main backend service which now includes the chat endpoint
     // For local development, use localhost:8000
-    const pythonApiBaseUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    const pythonApiBaseUrl = process.env.PYTHON_API_URL || 'https://hiba-05-todoapp-phase-2.hf.space';
     const pythonApiUrl = `${pythonApiBaseUrl}/api/chat`;  // The chat endpoint is now part of the main backend
 
     console.log('Using HTTP API approach:', pythonApiUrl);

@@ -78,7 +78,7 @@ def test_complete_workflow():
     # Test 5: Check if environment variables are set
     print("\n5. Checking environment configuration...")
     env_vars = {
-        "NEXT_PUBLIC_API_URL": os.getenv("NEXT_PUBLIC_API_URL", "http://localhost:8000"),
+        "NEXT_PUBLIC_API_URL": os.getenv("NEXT_PUBLIC_API_URL", "https://hiba-05-todoapp-phase-2.hf.space"),
         "Gemini_api_key": os.getenv(GEMINI_API_KEY)
     }
 

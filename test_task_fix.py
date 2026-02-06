@@ -2,7 +2,7 @@ import requests
 import json
 
 # Base URL for the backend
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://hiba-05-todoapp-phase-2.hf.space"
 
 def test_task_operations():
     print("Testing task operations...")

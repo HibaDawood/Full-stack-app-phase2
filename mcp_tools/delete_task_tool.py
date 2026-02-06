@@ -8,7 +8,7 @@ def delete_task(task_id: str) -> Dict[str, Any]:
     """
     try:
         # Assuming the backend is running on localhost:8000
-        response = requests.delete(f"http://localhost:8000/api/v1/tasks/{task_id}")
+        response = requests.delete(f"https://hiba-05-todoapp-phase-2.hf.space/api/v1/tasks/{task_id}")
         
         if response.status_code == 200:
             return {

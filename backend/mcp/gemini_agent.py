@@ -105,13 +105,14 @@ def parse_user_request(user_input: str) -> Dict[str, Any]:
             print(f"Error parsing user request: {e}")
             return {"action": "general_query", "params": {}}
 
-def execute_action(action: str, params: Dict[str, Any]) -> str:
+def execute_action(action: str, params: Dict[str, Any], user_input: str = "") -> str:
     """
     Execute the appropriate action based on the parsed request.
 
     Args:
         action (str): The action to execute
         params (Dict[str, Any]): Parameters for the action
+        user_input (str): The original user input (used for general queries)
 
     Returns:
         str: The result of the action
@@ -384,7 +385,7 @@ def chat_with_gemini_agent(user_input: str) -> str:
     action = parsed_request["action"]
     params = parsed_request["params"]
 
-    response = execute_action(action, params)
+    response = execute_action(action, params, user_input)
 
     return response
 

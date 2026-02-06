@@ -5,7 +5,7 @@ import json
 # Wait a moment for the server to start
 time.sleep(3)
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://hiba-05-todoapp-phase-2.hf.space"
 
 def test_task_operations():
     print("Testing task operations...")
