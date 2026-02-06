@@ -1,5 +1,5 @@
-import { Providers } from '@/src/providers';
-import '@/src/app/globals.css';
+import { Providers } from '@/providers';
+import '@/app/globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 

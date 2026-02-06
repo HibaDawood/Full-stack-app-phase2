@@ -1,31 +1,49 @@
 // frontend/src/app/api/agent/route.ts
 import { NextRequest } from 'next/server';
-import { spawn } from 'child_process';
-import path from 'path';
+import { pythonApiService } from '@/lib/python-executor';
 
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     const { userInput } = await request.json();
 
     if (!userInput) {
-      return jsonResponse({ error: 'Missing userInput' }, 400);
+      return jsonResponse({ response: 'Missing user input' }, 400);
     }
 
-    const pythonScriptPath = path.join(
-      process.cwd(),
-      '../mcp/gemini_agent.py'
-    );
+    // Use HTTP API approach (recommended for production/serverless)
+    // This communicates with the main backend service which now includes the chat endpoint
+    // For local development, use localhost:8000
+    const pythonApiBaseUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    const pythonApiUrl = `${pythonApiBaseUrl}/api/chat`;  // The chat endpoint is now part of the main backend
 
-    const result = await runPythonScript(pythonScriptPath, userInput);
+    console.log('Using HTTP API approach:', pythonApiUrl);
+    const result = await pythonApiService.executeViaHttpApi(pythonApiUrl, { userInput });
 
-    if (result.error) {
-      return jsonResponse(result, 500);
+    // Handle the result
+    if (!result.success) {
+      console.error('Python API error:', result.error);
+
+      // Check if it's a rate limit error
+      if (result.error?.includes('429') ||
+          result.error?.toLowerCase().includes('rate limit') ||
+          result.error?.toLowerCase().includes('quota')) {
+        return jsonResponse({
+          response: "I've reached my API usage limit. Please try again later when more capacity is available."
+        }, 200);
+      }
+
+      // For other errors, return a generic message
+      return jsonResponse({
+        response: "I'm having trouble processing your request right now. Please try again later."
+      }, 200);
     }
 
-    return jsonResponse(result, 200);
-  } catch (error) {
+    return jsonResponse(result.data, 200);
+  } catch (error: any) {
     console.error('Agent API error:', error);
-    return jsonResponse({ error: 'Internal server error' }, 500);
+    return jsonResponse({
+      response: "I'm having trouble processing your request right now. Please try again later."
+    }, 200);
   }
 }
 
@@ -36,58 +54,4 @@ function jsonResponse(data: unknown, status = 200): Response {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
-}
-
-function runPythonScript(
-  scriptPath: string,
-  userInput: string
-): Promise<any> {
-  return new Promise((resolve) => {
-    const pythonProcess = spawn('python', [
-      scriptPath,
-      JSON.stringify({ userInput }),
-    ]);
-
-    let stdoutData = '';
-    let stderrData = '';
-
-    pythonProcess.stdout.on('data', (data) => {
-      stdoutData += data.toString();
-    });
-
-    pythonProcess.stderr.on('data', (data) => {
-      stderrData += data.toString();
-    });
-
-    pythonProcess.on('close', (code) => {
-      if (code !== 0) {
-        resolve({
-          error: stderrData || 'Python script failed',
-          code,
-        });
-      } else {
-        const parsed = extractJsonFromOutput(stdoutData);
-        resolve(parsed ?? { error: 'Invalid Python response' });
-      }
-    });
-  });
-}
-
-/* -------- JSON EXTRACTION -------- */
-
-function safeJsonParse(str: string): any | null {
-  try {
-    return JSON.parse(str);
-  } catch {
-    try {
-      return JSON.parse(str.replace(/'/g, '"'));
-    } catch {
-      return null;
-    }
-  }
-}
-
-function extractJsonFromOutput(output: string): any | null {
-  const cleaned = output.trim();
-  return safeJsonParse(cleaned);
 }

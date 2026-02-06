@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AuthState } from '@/src/lib/types';
-import { LanguageProvider } from '@/src/contexts/LanguageContext';
+import { AuthState } from '@/lib/types';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 // Create contexts for different parts of the state
 const AuthContext = createContext<{

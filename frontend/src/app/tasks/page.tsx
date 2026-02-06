@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { tasksAPI, Task } from '../api/client';
-import TaskItem from '@/src/components/tasks/TaskItem';
-import type { Task as LibTask } from '@/src/lib/types';
-import TaskModal from '@/src/components/tasks/TaskModal';
-import ChatBot from '@/src/components/chatbot/ChatBot';
+import TaskItem from '@/components/tasks/TaskItem';
+import type { Task as LibTask } from '@/lib/types';
+import TaskModal from '@/components/tasks/TaskModal';
+import ChatBot from '@/components/chatbot/ChatBot';
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<LibTask[]>([]);

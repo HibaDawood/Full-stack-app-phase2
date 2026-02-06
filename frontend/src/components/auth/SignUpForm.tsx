@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@/src/components/ui/Button';
-import { Input } from '@/src/components/ui/Input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/src/components/ui/Card';
-import { isValidEmail, isValidPassword } from '@/src/lib/utils';
-import { SignUpForm as SignUpFormType } from '@/src/lib/types';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
+import { isValidEmail, isValidPassword } from '@/lib/utils';
+import { SignUpForm as SignUpFormType } from '@/lib/types';
 
 interface SignUpFormProps {
   onSignUp: (formData: SignUpFormType) => void;

@@ -1,9 +1,9 @@
 // app/layout-content.tsx
 'use client';
 
-import { useLanguage } from '@/src/contexts/LanguageContext';
-import { Providers } from '@/src/providers';
-import '@/src/app/globals.css';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Providers } from '@/providers';
+import '@/app/globals.css';
 import { Inter } from 'next/font/google';
 import { ReactNode } from 'react';
 

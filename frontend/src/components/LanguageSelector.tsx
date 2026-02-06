@@ -1,6 +1,6 @@
 // components/LanguageSelector.tsx
 import React from 'react';
-import { useLanguage } from '@/src/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const LanguageSelector: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();

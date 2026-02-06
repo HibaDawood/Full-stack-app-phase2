@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { apiClient } from '@/src/app/api/client';
-import { User, AuthState } from '@/src/lib/types';
-import { setUserData, removeUserData } from '@/src/lib/auth';
+import { apiClient } from '@/app/api/client';
+import { User, AuthState } from '@/lib/types';
+import { setUserData, removeUserData } from '@/lib/auth';
 
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({

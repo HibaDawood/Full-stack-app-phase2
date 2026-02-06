@@ -95,10 +95,79 @@ shared/
 
 4. Configure environment variables:
    Create `.env` files in both backend and frontend with the required configuration values, including the JWT secret for Better Auth.
+   
+   For the chatbot functionality, you'll need to set up the GEMINI_API_KEY in the root directory's `.env` file:
+   ```
+   GEMINI_API_KEY=your_actual_api_key_here
+   ```
 
 5. Run the applications:
    - Backend: `cd backend && python -m src.main`
    - Frontend: `cd frontend && npm run dev`
+
+## Python AI Agent Service
+
+The AI chatbot functionality is handled by a separate Python service to avoid issues with spawning processes in serverless environments:
+
+1. The Next.js frontend sends chat requests to `/api/agent` 
+2. The API route communicates with the Python agent service via HTTP
+3. The Python service executes the AI agent script and returns the response
+
+To run the Python agent as a separate service:
+
+```bash
+# Using Python directly
+python backend/python_agent_service.py
+
+# Or using Docker
+docker build -f Dockerfile.python -t python-agent-service .
+docker run -p 8000:8000 python-agent-service
+```
+
+Then set the `PYTHON_API_URL` environment variable in the frontend to point to your service (e.g., `http://localhost:8000/api/chat`).
+
+## Setup Instructions
+
+### Prerequisites
+- Node.js 18+
+- Python 3.8+
+- Access to Neon Serverless PostgreSQL database
+- Docker (optional, for containerized deployment)
+
+### Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Backend Setup
+```bash
+cd backend
+pip install -r requirements.txt
+python run_backend.py
+```
+
+### Environment Variables
+
+Frontend (`frontend/.env.local`):
+```
+PYTHON_API_URL=http://localhost:8000/api/chat
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+```
+
+Backend (`.env`):
+```
+DATABASE_URL=your_neon_database_url
+SECRET_KEY=your_secret_key
+```
+
+### Running the Application
+
+1. Start the Python agent service: `python backend/python_agent_service.py`
+2. Start the backend: `python backend/run_backend.py` 
+3. Start the frontend: `npm run dev`
+4. Access the application at `http://localhost:3000`
 
 ## Development Guidelines
 

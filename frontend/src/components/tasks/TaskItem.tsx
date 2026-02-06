@@ -1,7 +1,7 @@
 import React from 'react';
-import { Task } from '@/src/lib/types';
-import { Card, CardContent, CardFooter } from '@/src/components/ui/Card';
-import { Button } from '@/src/components/ui/Button';
+import { Task } from '@/lib/types';
+import { Card, CardContent, CardFooter } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 
 interface TaskItemProps {
   task: Task;

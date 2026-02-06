@@ -1,7 +1,7 @@
 import React from 'react';
-import { Task } from '@/src/lib/types';
-import TaskItem from '@/src/components/tasks/TaskItem';
-import { useLanguage } from '@/src/contexts/LanguageContext';
+import { Task } from '@/lib/types';
+import TaskItem from '@/components/tasks/TaskItem';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PriorityTaskListProps {
   tasks: Task[];

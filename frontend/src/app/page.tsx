@@ -28,7 +28,6 @@ export default function Home() {
         await authAPI.signin(email, password);
       }
 
-      // Redirect to tasks page after successful authentication
       router.push('/tasks');
     } catch (err: any) {
       setError(err.message || 'An error occurred');

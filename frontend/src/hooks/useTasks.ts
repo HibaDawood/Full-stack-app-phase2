@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { apiClient } from '@/src/app/api/client';
-import { Task } from '@/src/lib/types';
+import { apiClient } from '@/app/api/client';
+import { Task } from '@/lib/types';
 
 export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);

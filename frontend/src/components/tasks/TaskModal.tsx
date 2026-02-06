@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Task, TaskForm } from '@/src/lib/types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/src/components/ui/Dialog';
-import { Button } from '@/src/components/ui/Button';
-import { Input } from '@/src/components/ui/Input';
+import { Task, TaskForm } from '@/lib/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 interface TaskModalProps {
   isOpen: boolean;
