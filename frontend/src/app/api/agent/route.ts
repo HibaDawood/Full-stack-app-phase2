@@ -34,7 +34,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
       // For other errors, return a generic message
       return jsonResponse({
-        response: "I'm having trouble processing your request right now. Please try again later."
+        response: "You have reached your API request limit. Try again later or upgrade your plan."
       }, 200);
     }
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   } catch (error: any) {
     console.error('Agent API error:', error);
     return jsonResponse({
-      response: "I'm having trouble processing your request right now. Please try again later."
+      response: "You have reached your API request limit. Try again later or upgrade your plan."
     }, 200);
   }
 }
